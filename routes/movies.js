@@ -34,7 +34,6 @@ router.post("/", async (req, res) => {
 
   let movie = new Movie({
     title: req.body.title,
-    // genre: genre // don't do this because the genre object has other properties like __v that we don't want to embedded in movie document
     genre: {
       _id: genre._id,
       name: genre.name,
