@@ -1,6 +1,7 @@
 const { Rental, validate } = require("../models/rental");
 const { Movie } = require("../models/movie");
 const { Customer } = require("../models/customer");
+const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 
@@ -56,12 +57,23 @@ router.post("/", async (req, res) => {
       dailyRentalRate: movie.dailyRentalRate,
     },
   });
-  rental = await rental.save();
 
-  movie.numberInStock--;
-  movie.save();
-
-  res.send(rental);
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const resultRental = await rental.save({ session: session });
+      await movie.updateOne(
+        { $inc: { numberInStock: -1 } },
+        { session: session }
+      );
+      res.send(rental);
+    });
+  } catch (ex) {
+    // TODO: log the exception.
+    res.status(500).send("Something failed.");
+  } finally {
+    await session.endSession();
+  }
 });
 
 module.exports = router;
