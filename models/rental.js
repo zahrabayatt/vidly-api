@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 const rentalSchema = new mongoose.Schema({
-  // instead of embedded all customer and movie document, only embed the properties that you need.
   customer: {
     type: new mongoose.Schema({
       name: {
@@ -60,8 +59,8 @@ const Rental = mongoose.model("Rental", rentalSchema);
 
 function validateRental(rental) {
   const schema = Joi.object({
-    customerId: Joi.string().required(),
-    movieId: Joi.string().required(),
+    customerId: Joi.objectId().required(),
+    movieId: Joi.objectId().required(),
   });
 
   return schema.validate(rental);
