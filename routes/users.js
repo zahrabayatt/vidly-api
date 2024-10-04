@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const { User, validate } = require("../models/user");
 const express = require("express");
 const router = express.Router();
@@ -18,7 +19,7 @@ router.post("/", async (req, res) => {
   user = new User(req.body);
   user.save();
 
-  res.send(user);
+  res.send(_.pick(user, ["name", "email"]));
 });
 
 module.exports = router;
