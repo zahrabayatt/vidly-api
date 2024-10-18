@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/zahrabayatt/vidly-api#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.21.0",
     "joi": "^17.13.3",
     "joi-objectid": "^4.0.2",
