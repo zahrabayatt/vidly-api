@@ -21,6 +21,7 @@
     "bcrypt": "^5.1.1",
     "config": "^3.3.12",
     "express": "^4.21.0",
+    "express-async-errors": "^3.1.1",
     "joi": "^17.13.3",
     "joi-objectid": "^4.0.2",
     "joi-password-complexity": "^5.2.0",
