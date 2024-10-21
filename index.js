@@ -7,7 +7,7 @@ const customers = require("./routes/customers");
 const movies = require("./routes/movies");
 const rentals = require("./routes/rentals");
 const users = require("./routes/users");
-const auth = require("./routes/auth");
+const auth = require("./routes/authentication");
 const express = require("express");
 const app = express();
 
