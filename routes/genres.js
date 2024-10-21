@@ -1,3 +1,4 @@
+const auth = require("../middlewares/auth");
 const { Genre, validate } = require("../models/genre");
 const express = require("express");
 const router = express.Router();
@@ -18,7 +19,8 @@ router.get("/:id", async (req, res) => {
   res.send(genre);
 });
 
-router.post("/", async (req, res) => {
+// use auth middleware only for protected endpoint
+router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
     res.status(400).send(error.message);
