@@ -1,3 +1,5 @@
+const config = require("config");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Joi = require("joi");
 const passwordComplexity = require("joi-password-complexity");
@@ -23,6 +25,13 @@ const userSchema = new mongoose.Schema({
     maxLength: 1024,
   },
 });
+
+// use function name instead of arrow function, because this refer to user object. use only arrow function for stand alone functions.
+userSchema.methods.generateAuthToken = function () {
+  const token = jwt.sign({ _id: this._id }, config.get("jwtPrivateKey"));
+
+  return token;
+};
 
 const User = mongoose.model("User", userSchema);
 
