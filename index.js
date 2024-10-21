@@ -16,20 +16,16 @@ const express = require("express");
 const app = express();
 
 // this approach works with synchronous error and unhandled promise rejections
-process.on("uncaughtException", (ex) => {
-  console.log("WE GOT AN UNCAUGHT EXCEPTION");
-  winston.error(ex.message, ex);
-  // for best practice terminate the process:
-  process.exit(1);
-});
+// process.on("uncaughtException", (ex) => {
+//   console.log("WE GOT AN UNCAUGHT EXCEPTION");
+//   winston.error(ex.message, ex);
+//   process.exit(1);
+// });
 
-// you can also use this event for logging unhandled rejections:
-process.on("unhandledRejection", (ex) => {
-  console.log("WE GOT AN UNHANDLED REJECTION");
-  winston.error(ex.message, ex);
-  // for best practice terminate the process:
-  process.exit(1);
-});
+// Or you can use a helper method in winston to handle both uncaught exceptions and promise rejections:
+winston.exceptions.handle(
+  new winston.transports.File({ filename: "uncaughtExceptions.log" })
+);
 
 winston.add(new winston.transports.File({ filename: "logfile.log" }));
 winston.add(
@@ -38,7 +34,10 @@ winston.add(
   })
 );
 
-// Unhandled refection outside express:
+// Unhandled error outside express:
+throw new Error("Something failed in Startup.");
+
+// Unhandled rejection outside express:
 const p = Promise.reject(new Error("Something failed miserably!"));
 p.then(() => console.log("Done"));
 
