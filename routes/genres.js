@@ -1,3 +1,4 @@
+const asyncMiddleware = require("../middlewares/async");
 const authorization = require("../middlewares/authorization");
 const admin = require("../middlewares/admin");
 const { Genre, validate } = require("../models/genre");
@@ -20,18 +21,23 @@ router.get("/:id", async (req, res) => {
   res.send(genre);
 });
 
-router.post("/", authorization, async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) {
-    res.status(400).send(error.message);
-    return;
-  }
+router.post(
+  "/",
+  authorization,
+  asyncMiddleware(async (req, res, next) => {
+    const { error } = validate(req.body);
+    if (error) {
+      res.status(400).send(error.message);
+      return;
+    }
+    throw new Error("errorrrrr");
 
-  const genre = new Genre({ name: req.body.name });
-  await genre.save();
+    const genre = new Genre({ name: req.body.name });
+    await genre.save();
 
-  res.send(genre);
-});
+    res.send(genre);
+  })
+);
 
 router.put("/:id", authorization, async (req, res) => {
   const { error } = validate(req.body);
