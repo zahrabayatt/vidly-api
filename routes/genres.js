@@ -19,7 +19,6 @@ router.get("/:id", async (req, res) => {
   res.send(genre);
 });
 
-// use auth middleware only for protected endpoint
 router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
@@ -33,7 +32,7 @@ router.post("/", auth, async (req, res) => {
   res.send(genre);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
     res.status(400).send(error.message);
@@ -54,7 +53,7 @@ router.put("/:id", async (req, res) => {
   res.send(genre);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   const genre = await Genre.findByIdAndDelete(req.params.id);
 
   if (!genre) {

@@ -21,7 +21,6 @@ mongoose
   .then(() => console.log("Connected to MongoDB..."))
   .catch((err) => console.error("Couldn't connect to MongoDB...", err));
 
-// if we add auth middleware here all apis protected and should be login first!
 app.use(express.json());
 app.use("/api/genres", genres);
 app.use("/api/customers", customers);
