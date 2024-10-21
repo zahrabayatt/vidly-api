@@ -15,21 +15,21 @@ const auth = require("./routes/authentication");
 const express = require("express");
 const app = express();
 
+// Handling error in node that not be cached which makes process not be terminated
+process.on("uncaughtException", (ex) => {
+  console.log("WE GOT AN UNCAUGHT EXCEPTION");
+  winston.error(ex.message, ex);
+});
+
 winston.add(new winston.transports.File({ filename: "logfile.log" }));
 winston.add(
   new winston.transports.MongoDB({
     db: "mongodb://127.0.0.1:27017/vidly",
-    // you set the log level
-    level: "info", // only error, warn and info logged
   })
 );
-// log errors:
-// error
-// warn
-// info
-// verbose
-// debug
-// silly
+
+// this error threw outside of context of processing request and express, so the winston and error middleware are not be able to cache it.
+throw new Error("Something failed during the startup.");
 
 if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtPrivateKey is not defined.");
