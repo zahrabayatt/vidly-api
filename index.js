@@ -15,10 +15,20 @@ const auth = require("./routes/authentication");
 const express = require("express");
 const app = express();
 
-// Handling error in node that not be cached which makes process not be terminated
+// this approach works with synchronous error and unhandled promise rejections
 process.on("uncaughtException", (ex) => {
   console.log("WE GOT AN UNCAUGHT EXCEPTION");
   winston.error(ex.message, ex);
+  // for best practice terminate the process:
+  process.exit(1);
+});
+
+// you can also use this event for logging unhandled rejections:
+process.on("unhandledRejection", (ex) => {
+  console.log("WE GOT AN UNHANDLED REJECTION");
+  winston.error(ex.message, ex);
+  // for best practice terminate the process:
+  process.exit(1);
 });
 
 winston.add(new winston.transports.File({ filename: "logfile.log" }));
@@ -28,8 +38,9 @@ winston.add(
   })
 );
 
-// this error threw outside of context of processing request and express, so the winston and error middleware are not be able to cache it.
-throw new Error("Something failed during the startup.");
+// Unhandled refection outside express:
+const p = Promise.reject(new Error("Something failed miserably!"));
+p.then(() => console.log("Done"));
 
 if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtPrivateKey is not defined.");
