@@ -24,11 +24,14 @@ const userSchema = new mongoose.Schema({
     minLength: 8,
     maxLength: 1024,
   },
+  isAdmin: Boolean,
 });
 
-// use function name instead of arrow function, because this refer to user object. use only arrow function for stand alone functions.
 userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({ _id: this._id }, config.get("jwtPrivateKey"));
+  const token = jwt.sign(
+    { _id: this._id, isAdmin: this.isAdmin },
+    config.get("jwtPrivateKey")
+  );
 
   return token;
 };

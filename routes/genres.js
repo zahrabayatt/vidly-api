@@ -1,4 +1,5 @@
 const authorization = require("../middlewares/authorization");
+const admin = require("../middlewares/admin");
 const { Genre, validate } = require("../models/genre");
 const express = require("express");
 const router = express.Router();
@@ -53,7 +54,7 @@ router.put("/:id", authorization, async (req, res) => {
   res.send(genre);
 });
 
-router.delete("/:id", authorization, async (req, res) => {
+router.delete("/:id", [authorization, admin], async (req, res) => {
   const genre = await Genre.findByIdAndDelete(req.params.id);
 
   if (!genre) {
