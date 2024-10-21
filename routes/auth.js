@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const _ = require("lodash");
@@ -24,7 +25,8 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  res.send(true);
+  const token = jwt.sign({ _id: user._id }, "jwtPrivateKey");
+  res.send(token);
 });
 
 function validate(user) {
