@@ -69,9 +69,6 @@ router.post("/", authorization, async (req, res) => {
       );
       res.send(rental);
     });
-  } catch (ex) {
-    // TODO: log the exception.
-    res.status(500).send("Something failed.");
   } finally {
     await session.endSession();
   }
