@@ -15,14 +15,6 @@ const auth = require("./routes/authentication");
 const express = require("express");
 const app = express();
 
-// this approach works with synchronous error and unhandled promise rejections
-// process.on("uncaughtException", (ex) => {
-//   console.log("WE GOT AN UNCAUGHT EXCEPTION");
-//   winston.error(ex.message, ex);
-//   process.exit(1);
-// });
-
-// Or you can use a helper method in winston to handle both uncaught exceptions and promise rejections:
 winston.exceptions.handle(
   new winston.transports.File({ filename: "uncaughtExceptions.log" })
 );
@@ -33,13 +25,6 @@ winston.add(
     db: "mongodb://127.0.0.1:27017/vidly",
   })
 );
-
-// Unhandled error outside express:
-throw new Error("Something failed in Startup.");
-
-// Unhandled rejection outside express:
-const p = Promise.reject(new Error("Something failed miserably!"));
-p.then(() => console.log("Done"));
 
 if (!config.get("jwtPrivateKey")) {
   console.error("FATAL ERROR: jwtPrivateKey is not defined.");
