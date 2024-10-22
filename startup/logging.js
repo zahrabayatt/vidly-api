@@ -4,6 +4,13 @@ require("winston-mongodb");
 
 module.exports = () => {
   winston.exceptions.handle(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.prettyPrint(),
+        winston.format.align()
+      ),
+    }),
     new winston.transports.File({ filename: "uncaughtExceptions.log" })
   );
 
