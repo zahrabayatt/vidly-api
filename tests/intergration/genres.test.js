@@ -49,13 +49,11 @@ describe("/api/genres", () => {
   });
 
   describe("POST /", () => {
-    // Define the happy path, and then in each test, we change one parameter that clearly aligns with the name of the test.
-
     let token;
     let name;
 
-    const exec = async () => {
-      return await request(server)
+    const exec = () => {
+      return request(server)
         .post("/api/genres")
         .set("x-auth-token", token)
         .send({ name });
