@@ -1,3 +1,4 @@
+const validationObjectId = require("../middlewares/validateObjectId");
 const authorization = require("../middlewares/authorization");
 const { Rental, validate } = require("../models/rental");
 const { Movie } = require("../models/movie");
@@ -11,7 +12,7 @@ router.get("/", async (req, res) => {
   res.send(rentals);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", validationObjectId, async (req, res) => {
   const rental = await Rental.findById(req.params.id);
 
   if (!rental) {

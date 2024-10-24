@@ -1,3 +1,4 @@
+const validationObjectId = require("../middlewares/validateObjectId");
 const authorization = require("../middlewares/authorization");
 const { Movie, validate } = require("../models/movie");
 const { Genre } = require("../models/genre");
@@ -9,7 +10,7 @@ router.get("/", async (req, res) => {
   res.send(movies);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", validationObjectId, async (req, res) => {
   const movie = await Movie.findById(req.params.id);
 
   if (!movie) {
@@ -47,7 +48,7 @@ router.post("/", authorization, async (req, res) => {
   res.send(movie);
 });
 
-router.put("/:id", authorization, async (req, res) => {
+router.put("/:id", [authorization, validationObjectId], async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
     res.status(400).send(error.message);
@@ -82,7 +83,7 @@ router.put("/:id", authorization, async (req, res) => {
   res.send(movie);
 });
 
-router.delete("/:id", authorization, async (req, res) => {
+router.delete("/:id", [authorization, validationObjectId], async (req, res) => {
   const movie = await Movie.findByIdAndDelete(req.params.id);
 
   if (!movie) {

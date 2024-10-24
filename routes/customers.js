@@ -1,3 +1,4 @@
+const validationObjectId = require("../middlewares/validateObjectId");
 const authorization = require("../middlewares/authorization");
 const { Customer, validate } = require("../models/customer");
 const express = require("express");
@@ -8,7 +9,7 @@ router.get("/", async (req, res) => {
   res.send(customers);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", validationObjectId, async (req, res) => {
   const customer = await Customer.findById(req.params.id);
 
   if (!customer) {
@@ -32,7 +33,7 @@ router.post("/", authorization, async (req, res) => {
   res.send(customer);
 });
 
-router.put("/:id", authorization, async (req, res) => {
+router.put("/:id", [authorization, validationObjectId], async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
     res.status(400).send(error.message);
@@ -51,7 +52,7 @@ router.put("/:id", authorization, async (req, res) => {
   res.send(customer);
 });
 
-router.delete("/:id", authorization, async (req, res) => {
+router.delete("/:id", [authorization, validationObjectId], async (req, res) => {
   const customer = await Customer.findByIdAndDelete(req.params.id);
 
   if (!customer) {
