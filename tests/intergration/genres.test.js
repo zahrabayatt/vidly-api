@@ -13,7 +13,7 @@ describe("/api/genres", () => {
     await Genre.deleteMany();
   });
 
-  describe("Get /", () => {
+  describe("GET /", () => {
     it("should return all genres", async () => {
       await Genre.collection.insertMany([
         { name: "genre1" },
@@ -29,7 +29,7 @@ describe("/api/genres", () => {
     });
   });
 
-  describe("Get /:id", () => {
+  describe("GET /:id", () => {
     it("should return a genre if valid id is passed", async () => {
       const genre = new Genre({ name: "genre1" });
       await genre.save();
@@ -44,6 +44,16 @@ describe("/api/genres", () => {
       const res = await request(server).get("/api/genres/1");
 
       expect(res.status).toBe(404);
+    });
+  });
+
+  describe("POST /", () => {
+    it("should return 401 if client is not logged in", async () => {
+      const res = await request(server)
+        .post("/api/genres")
+        .send({ name: "genre1" });
+
+      expect(res.status).toBe(401);
     });
   });
 });
