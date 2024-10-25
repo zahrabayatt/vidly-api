@@ -1,3 +1,4 @@
+const moment = require("moment");
 const Joi = require("joi");
 const authorization = require("../middlewares/authorization");
 const express = require("express");
@@ -27,6 +28,9 @@ router.post("/", authorization, async (req, res) => {
   }
 
   rental.dateReturned = new Date();
+  const rentalDays = moment().diff(rental.dateOut, "days");
+  rental.rentalFee = rentalDays * rental.movie.dailyRentalRate;
+
   await rental.save();
 
   res.status(200).send();
