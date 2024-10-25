@@ -3,6 +3,7 @@ const Joi = require("joi");
 const authorization = require("../middlewares/authorization");
 const express = require("express");
 const { Rental } = require("../models/rental");
+const { Movie } = require("../models/movie");
 const router = express.Router();
 
 router.post("/", authorization, async (req, res) => {
@@ -32,6 +33,11 @@ router.post("/", authorization, async (req, res) => {
   rental.rentalFee = rentalDays * rental.movie.dailyRentalRate;
 
   await rental.save();
+
+  await Movie.updateOne(
+    { _id: rental.movie._id },
+    { $inc: { numberInStock: 1 } }
+  );
 
   res.status(200).send();
 });

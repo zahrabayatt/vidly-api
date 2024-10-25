@@ -3,6 +3,7 @@ const request = require("supertest");
 const { Rental } = require("../../models/rental");
 const mongoose = require("mongoose");
 const { User } = require("../../models/user");
+const { Movie } = require("../../models/movie");
 // Structure:
 // POST /api/returns {customerId, movieId}
 
@@ -20,6 +21,7 @@ const { User } = require("../../models/user");
 
 describe("/api/returns", () => {
   let server;
+  let movie;
   let rental;
   let customerId;
   let movieId;
@@ -29,6 +31,17 @@ describe("/api/returns", () => {
     customerId = new mongoose.Types.ObjectId();
     movieId = new mongoose.Types.ObjectId();
 
+    movie = new Movie({
+      _id: movieId,
+      title: "12345",
+      genre: {
+        name: "12345",
+      },
+      numberInStock: 10,
+      dailyRentalRate: 2,
+    });
+    await movie.save();
+
     rental = new Rental({
       customer: {
         _id: customerId,
@@ -36,9 +49,9 @@ describe("/api/returns", () => {
         phone: "12345",
       },
       movie: {
-        _id: movieId,
-        title: "12345",
-        dailyRentalRate: 2,
+        _id: movie._id,
+        title: movie.title,
+        dailyRentalRate: movie.dailyRentalRate,
       },
     });
     await rental.save();
@@ -47,6 +60,7 @@ describe("/api/returns", () => {
   afterEach(async () => {
     await server.close();
     await Rental.deleteMany();
+    await Movie.deleteMany();
   });
 
   describe("POST /", () => {
@@ -123,13 +137,21 @@ describe("/api/returns", () => {
       rental.dateOut = moment().add(-rentalDays, "days").toDate();
       await rental.save();
 
-      const res = await exec();
+      await exec();
 
       const rentalIndDb = await Rental.findById(rental._id);
 
       expect(rentalIndDb.rentalFee).toBe(
         rentalDays * rentalIndDb.movie.dailyRentalRate
       );
+    });
+
+    it("should increase the movie stock if input is valid", async () => {
+      await exec();
+
+      const movieInDb = await Movie.findById(movieId);
+
+      expect(movieInDb.numberInStock).toBe(movie.numberInStock + 1);
     });
   });
 });
