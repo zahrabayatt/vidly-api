@@ -1,3 +1,7 @@
+const request = require("supertest");
+const { Rental } = require("../../models/rental");
+const { default: mongoose } = require("mongoose");
+const { User } = require("../../models/user");
 // Structure:
 // POST /api/returns {customerId, movieId}
 
@@ -12,3 +16,58 @@
 // Calculate the rental fee
 // Increase the stock
 // Return the rental
+
+describe("/api/returns", () => {
+  let server;
+  let rental;
+  let customerId;
+  let movieId;
+
+  beforeEach(async () => {
+    server = require("../../index");
+    customerId = new mongoose.Types.ObjectId();
+    movieId = new mongoose.Types.ObjectId();
+
+    rental = new Rental({
+      customer: {
+        _id: customerId,
+        name: "12345",
+        phone: "12345",
+      },
+      movie: {
+        _id: movieId,
+        title: "12345",
+        dailyRentalRate: 2,
+      },
+    });
+    await rental.save();
+  });
+
+  afterEach(async () => {
+    await server.close();
+    await Rental.deleteMany();
+  });
+
+  describe("POST /", () => {
+    let token;
+
+    const exec = () => {
+      return request(server)
+        .post("/api/returns")
+        .set("x-auth-token", token)
+        .send({ customerId, movieId });
+    };
+
+    beforeEach(() => {
+      token = new User().generateAuthToken();
+    });
+
+    it("should return 401 if client is not logged in", async () => {
+      token = "";
+
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+  });
+});
