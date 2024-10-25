@@ -26,6 +26,9 @@ router.post("/", authorization, async (req, res) => {
     return;
   }
 
+  rental.dateReturned = new Date();
+  await rental.save();
+
   res.status(200).send();
 });
 
