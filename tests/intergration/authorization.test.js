@@ -2,15 +2,15 @@ const request = require("supertest");
 const { User } = require("../../models/user");
 const { Genre } = require("../../models/genre");
 
-let server;
-
 describe("authorization middleware", () => {
+  let server;
+
   beforeEach(() => {
     server = require("../../index");
   });
 
   afterEach(async () => {
-    server.close();
+    await server.close();
     await Genre.deleteMany();
   });
 
