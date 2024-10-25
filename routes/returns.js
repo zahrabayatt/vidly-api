@@ -15,14 +15,14 @@ router.post("/", authorization, async (req, res) => {
     "customer._id": req.body.customerId,
     "movie._id": req.body.movieId,
   });
-  // or
-  //   let rental = await Rental.findOne({
-  //     movie: { _id: req.body.movieId },
-  //     customer: { _id: req.body.customerId },
-  //   });
 
   if (!rental) {
     res.status(404).send("Rental not found!");
+    return;
+  }
+
+  if (rental.dateReturned) {
+    res.status(400).send("Rental is already processed!");
     return;
   }
 });
