@@ -12,7 +12,7 @@ const { User } = require("../../models/user");
 // Return 404 if not rental found for this customer/movie
 // Return 400 if rental already processed
 // Return 200 if valid request
-// Set the return dat
+// Set the return date
 // Calculate the rental fee
 // Increase the stock
 // Return the rental
@@ -101,6 +101,12 @@ describe("/api/returns", () => {
       const res = await exec();
 
       expect(res.status).toBe(400);
+    });
+
+    it("should return 200 if valid request", async () => {
+      const res = await exec();
+
+      expect(res.status).toBe(200);
     });
   });
 });

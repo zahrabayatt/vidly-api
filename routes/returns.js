@@ -25,6 +25,8 @@ router.post("/", authorization, async (req, res) => {
     res.status(400).send("Rental is already processed!");
     return;
   }
+
+  res.status(200).send();
 });
 
 function validate(param) {
