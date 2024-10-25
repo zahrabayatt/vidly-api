@@ -1,9 +1,10 @@
 const moment = require("moment");
 const Joi = require("joi");
 const authorization = require("../middlewares/authorization");
-const express = require("express");
 const { Rental } = require("../models/rental");
 const { Movie } = require("../models/movie");
+const mongoose = require("mongoose");
+const express = require("express");
 const router = express.Router();
 
 router.post("/", authorization, async (req, res) => {
@@ -28,18 +29,25 @@ router.post("/", authorization, async (req, res) => {
     return;
   }
 
-  rental.dateReturned = new Date();
-  const rentalDays = moment().diff(rental.dateOut, "days");
-  rental.rentalFee = rentalDays * rental.movie.dailyRentalRate;
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      rental.dateReturned = new Date();
+      const rentalDays = moment().diff(rental.dateOut, "days");
+      rental.rentalFee = rentalDays * rental.movie.dailyRentalRate;
 
-  await rental.save();
+      await rental.save();
+      await Movie.updateOne(
+        { _id: rental.movie._id },
+        { $inc: { numberInStock: 1 } },
+        { session: session }
+      );
 
-  await Movie.updateOne(
-    { _id: rental.movie._id },
-    { $inc: { numberInStock: 1 } }
-  );
-
-  res.status(200).send();
+      res.status(200).send(rental);
+    });
+  } finally {
+    await session.endSession();
+  }
 });
 
 function validate(param) {
