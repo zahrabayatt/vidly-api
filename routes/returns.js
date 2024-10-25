@@ -1,3 +1,4 @@
+const validate = require("../middlewares/validate");
 const moment = require("moment");
 const Joi = require("joi");
 const authorization = require("../middlewares/authorization");
@@ -7,50 +8,48 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 
-router.post("/", authorization, async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) {
-    res.status(400).send(error.message);
-    return;
-  }
-
-  let rental = await Rental.findOne({
-    "customer._id": req.body.customerId,
-    "movie._id": req.body.movieId,
-  });
-
-  if (!rental) {
-    res.status(404).send("Rental not found!");
-    return;
-  }
-
-  if (rental.dateReturned) {
-    res.status(400).send("Rental is already processed!");
-    return;
-  }
-
-  const session = await mongoose.startSession();
-  try {
-    await session.withTransaction(async () => {
-      rental.dateReturned = new Date();
-      const rentalDays = moment().diff(rental.dateOut, "days");
-      rental.rentalFee = rentalDays * rental.movie.dailyRentalRate;
-
-      await rental.save();
-      await Movie.updateOne(
-        { _id: rental.movie._id },
-        { $inc: { numberInStock: 1 } },
-        { session: session }
-      );
-
-      res.status(200).send(rental);
+router.post(
+  "/",
+  [authorization, validate(validateReturn)],
+  async (req, res) => {
+    let rental = await Rental.findOne({
+      "customer._id": req.body.customerId,
+      "movie._id": req.body.movieId,
     });
-  } finally {
-    await session.endSession();
-  }
-});
 
-function validate(param) {
+    if (!rental) {
+      res.status(404).send("Rental not found!");
+      return;
+    }
+
+    if (rental.dateReturned) {
+      res.status(400).send("Rental is already processed!");
+      return;
+    }
+
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        rental.dateReturned = new Date();
+        const rentalDays = moment().diff(rental.dateOut, "days");
+        rental.rentalFee = rentalDays * rental.movie.dailyRentalRate;
+
+        await rental.save();
+        await Movie.updateOne(
+          { _id: rental.movie._id },
+          { $inc: { numberInStock: 1 } },
+          { session: session }
+        );
+
+        res.status(200).send(rental);
+      });
+    } finally {
+      await session.endSession();
+    }
+  }
+);
+
+function validateReturn(param) {
   const schema = Joi.object({
     customerId: Joi.objectId().required(),
     movieId: Joi.objectId().required(),

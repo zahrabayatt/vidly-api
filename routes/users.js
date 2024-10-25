@@ -1,7 +1,8 @@
+const validate = require("../middlewares/validate");
 const authorization = require("../middlewares/authorization");
 const bcrypt = require("bcrypt");
 const _ = require("lodash");
-const { User, validate } = require("../models/user");
+const { User, validateUser } = require("../models/user");
 const express = require("express");
 const router = express.Router();
 
@@ -11,13 +12,7 @@ router.get("/me", authorization, async (req, res) => {
   res.send(user);
 });
 
-router.post("/", async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) {
-    res.status(400).send(error.message);
-    return;
-  }
-
+router.post("/", [validate(validateUser)], async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
   if (user) {
     res.status(400).send("User already registered.");
