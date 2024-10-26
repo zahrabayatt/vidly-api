@@ -4,20 +4,6 @@ const { Rental } = require("../../models/rental");
 const mongoose = require("mongoose");
 const { User } = require("../../models/user");
 const { Movie } = require("../../models/movie");
-// Structure:
-// POST /api/returns {customerId, movieId}
-
-// Test Cases:
-// Return 401 if client is not logged in
-// Return 400 if customerId is not provided
-// Return 400 if movieId is not provided
-// Return 404 if not rental found for this customer/movie
-// Return 400 if rental already processed
-// Return 200 if valid request
-// Set the return date
-// Calculate the rental fee
-// Increase the stock
-// Return the rental
 
 describe("/api/returns", () => {
   let server;
