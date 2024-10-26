@@ -12,10 +12,7 @@ router.post(
   "/",
   [authorization, validate(validateReturn)],
   async (req, res) => {
-    let rental = await Rental.findOne({
-      "customer._id": req.body.customerId,
-      "movie._id": req.body.movieId,
-    });
+    let rental = await Rental.lookup(req.body.customerId, req.body.movieId);
 
     if (!rental) {
       res.status(404).send("Rental not found!");
